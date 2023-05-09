@@ -20,7 +20,7 @@ public class Comment {
     private Date createdDate;
     @ManyToOne
     private Users userId;
-    @ManyToOne
-    private List<> articleId;
+//    @ManyToOne
+    private Integer articleId;
 
 }
