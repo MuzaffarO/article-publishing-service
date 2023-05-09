@@ -48,7 +48,6 @@ public class UsersServiceImpl implements UsersService {
                         .build();
 
             Users users = usersMapper.toEntity(usersDto);
-            users.setCreatedAt(LocalDateTime.now());
             usersRepository.save(users);
             return ResponseDto.<UsersDto>builder()
                     .success(true)
