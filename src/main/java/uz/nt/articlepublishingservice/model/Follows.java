@@ -1,18 +1,20 @@
 package uz.nt.articlepublishingservice.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
 @Getter
 @Setter
-public class Likes {
+public class Follows {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer articleId;
     @ManyToOne
     private Users user;
-
+    @ManyToOne
+    private Users follower;
 }
