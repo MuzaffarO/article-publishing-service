@@ -12,7 +12,7 @@ import uz.nt.articlepublishingservice.dto.UsersDto;
 public class UsersResources {
     @PostMapping()
     public ResponseDto<UsersDto> addUsers(@RequestBody UsersDto usersDto) {
-        return usersService.addUser(usersDto);
+        return null;
     }
 }
 
