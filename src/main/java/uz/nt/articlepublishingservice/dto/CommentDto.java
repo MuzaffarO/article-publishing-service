@@ -2,6 +2,8 @@ package uz.nt.articlepublishingservice.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Users;
 
@@ -17,9 +19,7 @@ public class CommentDto {
     private String description;
     private Date createdDate;
     @NotNull
-//    @Size(min=4, message= "whatever")
     private Users users;
     @NotNull
-//    @Size(min=4, message= "whatever")
     private Articles articles;
 }
