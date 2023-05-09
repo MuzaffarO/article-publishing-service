@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class LikesDto {
     private Integer id;
-    private Integer articleId;
+    private ArticlesDto article;
     private UsersDto user;
 }

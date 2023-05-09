@@ -5,13 +5,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+//@Table(name = "likes",
+//        uniqueConstraints = @UniqueConstraint(name = "like_unique",
+//                columnNames = {"article", "user"})
+//)
 @Getter
 @Setter
 public class Likes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer articleId;
+    @ManyToOne
+    private Articles article;
     @ManyToOne
     private Users user;
 
