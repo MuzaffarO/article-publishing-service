@@ -1,9 +1,9 @@
 package uz.nt.articlepublishingservice.dto;
 
-import jakarta.validation.constraints.Negative;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
+import uz.nt.articlepublishingservice.model.Articles;
+import uz.nt.articlepublishingservice.model.Users;
 
 import java.util.Date;
 
@@ -16,8 +16,10 @@ public class CommentDto {
     @NotBlank
     private String description;
     private Date createdDate;
-    @NotNull @Negative
-    private Integer userId;
-    @NotNull @Negative
-    private Integer articleId;
+    @NotNull
+//    @Size(min=4, message= "whatever")
+    private Users users;
+    @NotNull
+//    @Size(min=4, message= "whatever")
+    private Articles articles;
 }

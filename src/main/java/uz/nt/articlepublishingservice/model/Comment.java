@@ -19,8 +19,8 @@ public class Comment {
     private String description;
     private Date createdDate;
     @ManyToOne
-    private Users userId;
-//    @ManyToOne
-    private Integer articleId;
+    private Users users;
+    @ManyToOne
+    private Articles articles;
 
 }
