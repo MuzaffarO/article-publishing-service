@@ -3,21 +3,18 @@ package uz.nt.articlepublishingservice.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 @Entity
-//@Table(name = "likes",
-//        uniqueConstraints = @UniqueConstraint(name = "like_unique",
-//                columnNames = {"article", "user"})
+//@Table(
+//        uniqueConstraints = @UniqueConstraint(name = "follow_unique",columnNames = {"user","follower"})
 //)
 @Getter
 @Setter
-public class Likes {
+public class Follows {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
-    private Articles article;
-    @ManyToOne
     private Users user;
-
+    @ManyToOne
+    private Users follower;
 }

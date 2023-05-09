@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LikesDto {
+public class FollowsDto {
     private Integer id;
-    private ArticlesDto article;
     private UsersDto user;
+    private UsersDto follower;
 }
