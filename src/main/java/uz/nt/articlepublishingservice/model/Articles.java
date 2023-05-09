@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -23,10 +24,11 @@ public class Articles {
     private String title;
     private String about;
     private String body;
+    @CreationTimestamp
     @CreatedDate
     private LocalDateTime publishDate;
     @ManyToOne
-    private Users authorId;
-    @OneToMany
+    private Users author;
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Tag> tags;
 }
