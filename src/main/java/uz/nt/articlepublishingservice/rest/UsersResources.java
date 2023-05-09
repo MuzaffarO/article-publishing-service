@@ -10,9 +10,9 @@ import uz.nt.articlepublishingservice.dto.UsersDto;
 @RestController
 @RequestMapping("/user")
 public class UsersResources {
-    @PostMapping()
-    public ResponseDto<UsersDto> addUsers(@RequestBody UsersDto usersDto) {
-        return usersService.addUser(usersDto);
-    }
+//    @PostMapping()
+//    public ResponseDto<UsersDto> addUsers(@RequestBody UsersDto usersDto) {
+//        return usersService.addUser(usersDto);
+//    }
 }
 
