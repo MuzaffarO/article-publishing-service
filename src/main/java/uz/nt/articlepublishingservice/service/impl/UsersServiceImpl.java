@@ -2,6 +2,7 @@ package uz.nt.articlepublishingservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import uz.nt.articlepublishingservice.dto.FollowsDto;
 import uz.nt.articlepublishingservice.dto.ResponseDto;
 import uz.nt.articlepublishingservice.dto.UsersDto;
 import uz.nt.articlepublishingservice.model.Users;
@@ -15,8 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static uz.nt.articlepublishingservice.service.additional.AppStatusCodes.DATABASE_ERROR_CODE;
+import static uz.nt.articlepublishingservice.service.additional.AppStatusCodes.NOT_FOUND_ERROR_CODE;
 import static uz.nt.articlepublishingservice.service.additional.AppStatusMessages.*;
-import static uz.nt.articlepublishingservice.service.additional.AppStatusCodes.*;
 
 
 @Service
@@ -184,5 +186,30 @@ public class UsersServiceImpl implements UsersService {
         user.setUsername(Optional.ofNullable(usersDto.getUsername()).orElse(user.getUsername()));
 
         return user;
+    }
+
+    @Override
+    public ResponseDto<UsersDto> follow(FollowsDto followsDto) {
+        Optional<Users> follower = usersRepository.findById(followsDto.getFollower().getId());
+        Optional<Users> followingUser = usersRepository.findById(followsDto.getUser().getId());
+        if (followingUser.isEmpty() || follower.isEmpty()) {
+            return ResponseDto.<UsersDto>builder()
+                    .code(-2)
+                    .message("Users not found")
+                    .build();
+        }
+        if (follower.get().getFollows().contains(followingUser)) {
+            follower.get().getFollows().remove(followingUser);
+        } else {
+            follower.get().getFollowers().add(followingUser.get());
+        }
+        usersRepository.save(follower.get());
+        return ResponseDto.<UsersDto>builder()
+                .code(0)
+                .message("OK")
+                .success(true)
+                .data(usersMapper.toDto(followingUser.get()))
+                .build();
+
     }
 }

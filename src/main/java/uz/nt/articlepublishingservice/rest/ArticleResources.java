@@ -1,12 +1,12 @@
 package uz.nt.articlepublishingservice.rest;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
-import uz.nt.articlepublishingservice.dto.ResponseDto;
 import uz.nt.articlepublishingservice.service.impl.ArticlesServiceImpl;
 
 @RestController
@@ -37,5 +37,9 @@ public class ArticleResources {
     @GetMapping("/popular-tags")
     public ResponseEntity<?> popularTags(){
         return articlesService.popularArticles();
+    }
+    @PostMapping("/like")
+    public ResponseEntity<?> like(@RequestBody LikesDto likesDto){
+        return articlesService.like(likesDto);
     }
 }

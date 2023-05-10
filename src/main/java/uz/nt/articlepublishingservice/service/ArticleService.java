@@ -10,4 +10,5 @@ public interface ArticleService {
     ResponseEntity<?> delete(Integer id);
     ResponseEntity<?> get(Integer id);
     ResponseEntity<?> getAll();
+    ResponseEntity<?> like(LikesDto LikesDto);
 }
