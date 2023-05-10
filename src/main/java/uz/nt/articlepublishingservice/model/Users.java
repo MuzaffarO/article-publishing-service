@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,21 +25,19 @@ public class Users {
     @CreatedDate
     @CreationTimestamp
     private LocalDateTime createdAt;
-    @UpdateTimestamp
-    @LastModifiedDate
     private LocalDateTime updatedAt;
+    @ManyToMany
+    @JoinTable(
+            name = "subscriptions",
+            joinColumns = @JoinColumn(name = "follower_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<Users> follows;
+    @ManyToMany(mappedBy = "follows")
+    private List<Users> followers;
     @ManyToMany
     @JoinTable(
             name = "likes",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "article_id")
-    )
-    private List<Articles> likedArticles;
-//    @ManyToMany
-//    @JoinTable(
-//            name = "follows",
-//            joinColumns = @JoinColumn(name = "follower_id"),
-//            inverseJoinColumns = @JoinColumn(name = "following_id")
-//    )
-//    private List<Users> followers;
+            inverseJoinColumns = @JoinColumn(name = "article_id"))
+    private List<Articles> likes;
 }

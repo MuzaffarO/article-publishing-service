@@ -1,8 +1,6 @@
 package uz.nt.articlepublishingservice.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -38,8 +37,9 @@ public class Articles {
     @NotNull
     @ManyToOne
     private Users author;
+    @ManyToMany(mappedBy = "likes")
+    private List<Users> likes;
     @ManyToMany
     private Set<Tag> tags;
-    @ManyToMany(mappedBy = "likedArticles")
-    private List<Users> likes;
+
 }
