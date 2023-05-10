@@ -9,10 +9,13 @@ import uz.nt.articlepublishingservice.dto.TagDto;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Tag;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
+import uz.nt.articlepublishingservice.repository.TagRepository;
 import uz.nt.articlepublishingservice.service.ArticleService;
+import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
 import uz.nt.articlepublishingservice.service.mapper.ArticlesMapper;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -21,13 +24,13 @@ public class ArticlesServiceImpl implements ArticleService {
     private final ArticlesRepository repository;
     private final ArticlesMapper mapper;
     private final TagServiceImpl tagService;
+    private final TagRepository tagRepository;
     @Override
     public ResponseEntity<?> add(ArticlesDto articlesDto) {
+        ResponseEntity<Set<Tag>> add = tagService.add(articlesDto.getTags());
         Articles articles = mapper.toEntity(articlesDto);
+        articles.setTags(add.getBody());
         try {
-            for (TagDto tagDto : articlesDto.getTags()) {
-                tagService.add(tagDto);
-            }
             repository.save(articles);
             log.info("articles add {}",articles.getTitle());
             return ResponseEntity.ok(mapper.toDto(articles));
@@ -84,11 +87,11 @@ public class ArticlesServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<?> get(Integer id) {
         if(id == null){
-            return ResponseEntity.badRequest().body("null value");
+            return ResponseEntity.badRequest().body(AppStatusMessages.NULL_VALUE);
         }
         Optional<Articles> byId = repository.findById(id);
         if(byId.isEmpty()){
-            return ResponseEntity.ok("not found");
+            return ResponseEntity.ok(AppStatusMessages.NOT_FOUND);
         }
         try {
             return ResponseEntity.ok(mapper.toDto(byId.get()));
@@ -96,5 +99,18 @@ public class ArticlesServiceImpl implements ArticleService {
             return ResponseEntity.ok(e.getMessage());
         }
 
+    }
+
+    @Override
+    public ResponseEntity<?> getAll() {
+        try {
+            return ResponseEntity.ok(repository.findAll());
+        }catch (Exception e){
+            return ResponseEntity.ok(e.getMessage());
+        }
+    }
+
+    public ResponseEntity<?> popularArticles() {
+        return ResponseEntity.ok(tagRepository.getPopularTags());
     }
 }

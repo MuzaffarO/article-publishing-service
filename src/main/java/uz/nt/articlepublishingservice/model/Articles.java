@@ -29,8 +29,8 @@ public class Articles {
     private LocalDateTime publishDate;
     @ManyToOne
     private Users author;
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Tag> tags;
+    @ManyToMany
+    private Set<Tag> tags;
     @ManyToMany(mappedBy = "likes")
     private List<Users> likes;
 }

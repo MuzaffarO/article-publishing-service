@@ -9,4 +9,5 @@ public interface ArticleService {
     ResponseEntity<?> update(ArticlesDto articlesDto);
     ResponseEntity<?> delete(Integer id);
     ResponseEntity<?> get(Integer id);
+    ResponseEntity<?> getAll();
 }
