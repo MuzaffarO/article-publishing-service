@@ -13,5 +13,5 @@ public class Tag {
     @SequenceGenerator(name = "tag_id", sequenceName = "tag_id_seq", allocationSize = 1)
     private Integer id;
     private String name;
-    private Integer numOfUsage;
+    private Integer usage_count;
 }

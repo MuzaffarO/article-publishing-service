@@ -6,8 +6,10 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -25,5 +27,14 @@ public class Users {
     @CreatedDate
     @CreationTimestamp
     private LocalDateTime createdAt;
+    @UpdateTimestamp
+    @LastModifiedDate
     private LocalDateTime updatedAt;
+    @ManyToMany
+    @JoinTable(
+            name = "likes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "article_id")
+    )
+    private List<Articles> likedArticles;
 }
