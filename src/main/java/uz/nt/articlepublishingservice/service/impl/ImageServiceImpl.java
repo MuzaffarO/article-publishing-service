@@ -12,6 +12,7 @@ import uz.nt.articlepublishingservice.service.ImageService;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +32,7 @@ public class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
     public String filePath(String folder, String ext) {
-        java.io.File file = new java.io.File("userImageFile" + "/" + folder);
+        File file = new File("userImageFile" + "/" + folder);
         if (!file.exists()) {
             file.mkdirs();
         }
@@ -52,9 +53,9 @@ public class ImageServiceImpl implements ImageService {
         try {
             futures = executorService.invokeAll(
                     Arrays.asList(
-                            () -> saveLargeSize(file, entity.getExt()),
-                            () -> saveMediumSize(file, entity.getExt()),
-                            () -> saveSmallSize(file, entity.getExt())
+                            () -> saveLargeSize(file, userId, entity.getExt()),
+                            () -> saveMediumSize(file, userId, entity.getExt()),
+                            () -> saveSmallSize(file, userId, entity.getExt())
                     )
             );
         } catch (InterruptedException e) {
@@ -84,8 +85,19 @@ public class ImageServiceImpl implements ImageService {
 
         try {
             Optional<Image> upImage = imageRepository.findByUserId(userId);
-            upImage.ifPresent(image -> entity.setId(image.getId()));
+
+            upImage.ifPresent(image -> {
+                entity.setId(image.getId());
+                File file1 = new File(image.getPathSmall());
+                File file2 = new File(image.getPathMedium());
+                File file3 = new File(image.getPathLarge());
+                file1.delete();
+                file2.delete();
+                file3.delete();
+            });
+
             Image savedImage = imageRepository.save(entity);
+
             return ResponseDto.<Integer>builder()
                     .data(savedImage.getId())
                     .message("OK")
@@ -139,36 +151,39 @@ public class ImageServiceImpl implements ImageService {
     }
 
 
-    private String saveLargeSize(MultipartFile file, String ext) {
+    private String saveLargeSize(MultipartFile file, Integer userId, String ext) {
         String filePathLarge;
         try {
-            Files.copy(file.getInputStream(), Path.of(filePathLarge = filePath("images//large", ext)));
+            Files.copy(file.getInputStream(), Path.of(
+                    filePathLarge = filePath("images/large/user" + userId, ext)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return filePathLarge;
     }
 
-    private String saveMediumSize(MultipartFile file, String ext) {
+    private String saveMediumSize(MultipartFile file, Integer userId, String ext) {
         String filePathMedium;
         BufferedImage bufferedImage = null;
         try {
             bufferedImage = ImageIO.read(file.getInputStream());
             BufferedImage bufferedImage1 = resizeImage(bufferedImage, bufferedImage.getWidth() / 2, bufferedImage.getHeight() / 2);
-            ImageIO.write(bufferedImage1, ext.substring(1), new java.io.File(filePathMedium = filePath("images//medium", ext)));
+            ImageIO.write(bufferedImage1, ext.substring(1), new java.io.File(
+                    filePathMedium = filePath("images/medium/user" + userId, ext)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return filePathMedium;
     }
 
-    private String saveSmallSize(MultipartFile file, String ext) {
+    private String saveSmallSize(MultipartFile file, Integer userId, String ext) {
         String filePathSmall;
         BufferedImage bufferedImage = null;
         try {
             bufferedImage = ImageIO.read(file.getInputStream());
             BufferedImage bufferedImage1 = resizeImage(bufferedImage, bufferedImage.getWidth() / 2 / 2, bufferedImage.getHeight() / 2 / 2);
-            ImageIO.write(bufferedImage1, ext.substring(1), new java.io.File(filePathSmall = filePath("images//small", ext)));
+            ImageIO.write(bufferedImage1, ext.substring(1), new java.io.File(
+                    filePathSmall = filePath("images/small/user" + userId, ext)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
