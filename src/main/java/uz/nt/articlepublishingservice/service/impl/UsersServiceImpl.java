@@ -1,9 +1,6 @@
 package uz.nt.articlepublishingservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.ResponseDto;
 import uz.nt.articlepublishingservice.dto.UsersDto;
@@ -39,7 +36,6 @@ public class UsersServiceImpl implements UsersService {
                         .code(AppStatusCodes.VALIDATION_ERROR_CODE)
                         .message("User with this email " + usersDto.getEmail() + " already exists!")
                         .build();
-//                return new ResponseEntity<String>("User with this email already exists!", HttpStatus.NOT_ACCEPTABLE);
 
             if (byUsername.isPresent())
                 return ResponseDto.<UsersDto>builder()
