@@ -5,11 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
+import uz.nt.articlepublishingservice.dto.LikesDto;
 import uz.nt.articlepublishingservice.dto.TagDto;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Tag;
+import uz.nt.articlepublishingservice.model.Users;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
 import uz.nt.articlepublishingservice.repository.TagRepository;
+import uz.nt.articlepublishingservice.repository.UsersRepository;
 import uz.nt.articlepublishingservice.service.ArticleService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
 import uz.nt.articlepublishingservice.service.mapper.ArticlesMapper;
@@ -25,6 +28,7 @@ public class ArticlesServiceImpl implements ArticleService {
     private final ArticlesMapper mapper;
     private final TagServiceImpl tagService;
     private final TagRepository tagRepository;
+    private final UsersRepository usersRepository;
     @Override
     public ResponseEntity<?> add(ArticlesDto articlesDto) {
         ResponseEntity<Set<Tag>> add = tagService.add(articlesDto.getTags());
@@ -107,6 +111,25 @@ public class ArticlesServiceImpl implements ArticleService {
             return ResponseEntity.ok(repository.findAll());
         }catch (Exception e){
             return ResponseEntity.ok(e.getMessage());
+        }
+    }
+    @Override
+    public ResponseEntity<?> like(LikesDto followsDto) {
+        Optional<Articles> article = repository.findById(followsDto.getArticle().getId());
+        Optional<Users> user = usersRepository.findById(followsDto.getUser().getId());
+        if(user.isEmpty()){
+            return ResponseEntity.badRequest().body("user with not found");
+        }
+        if (article.isPresent()) {
+            if(article.get().getLikes().contains(article.get())){
+                article.get().getLikes().remove(user.get());
+            } else{
+                article.get().getLikes().add(user.get());
+            }
+            repository.save(article.get());
+            return ResponseEntity.ok(followsDto);
+        } else {
+            return ResponseEntity.badRequest().body("article not found");
         }
     }
 

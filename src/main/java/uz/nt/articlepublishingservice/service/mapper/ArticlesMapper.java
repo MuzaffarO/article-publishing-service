@@ -1,6 +1,7 @@
 package uz.nt.articlepublishingservice.service.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
 import uz.nt.articlepublishingservice.model.Articles;
 @Mapper(componentModel = "spring")
