@@ -18,5 +18,6 @@ public class ArticlesDto {
     private String body;
     private UsersDto author;
     private List<TagDto> tags;
+    private Integer likes;
 
 }

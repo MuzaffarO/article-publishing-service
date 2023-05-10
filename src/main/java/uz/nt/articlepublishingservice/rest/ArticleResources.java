@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
+import uz.nt.articlepublishingservice.dto.LikesDto;
 import uz.nt.articlepublishingservice.service.impl.ArticlesServiceImpl;
 
 @RestController
@@ -17,5 +18,9 @@ public class ArticleResources {
     @PostMapping("/add")
     public ResponseEntity<?> add(@RequestBody ArticlesDto articlesDto){
         return articlesService.add(articlesDto);
+    }
+    @PostMapping("/like")
+    public ResponseEntity<?> like(@RequestBody LikesDto likesDto){
+        return articlesService.like(likesDto);
     }
 }

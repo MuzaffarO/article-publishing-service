@@ -2,8 +2,8 @@ package uz.nt.articlepublishingservice.rest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.nt.articlepublishingservice.dto.FollowsDto;
 import uz.nt.articlepublishingservice.dto.ResponseDto;
 import uz.nt.articlepublishingservice.dto.UsersDto;
 import uz.nt.articlepublishingservice.service.UsersService;
@@ -34,6 +34,10 @@ public class UsersResources {
     @DeleteMapping("delete-by-id")
     public ResponseDto<UsersDto> deleteUserById(@RequestParam Integer id){
         return usersService.deleteUserById(id);
+    }
+    @PostMapping("follow")
+    public ResponseDto<UsersDto> follow(@RequestBody FollowsDto followsDto){
+        return usersService.follow(followsDto);
     }
 }
 
