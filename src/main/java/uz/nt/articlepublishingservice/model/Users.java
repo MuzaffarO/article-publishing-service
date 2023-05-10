@@ -37,4 +37,11 @@ public class Users {
             inverseJoinColumns = @JoinColumn(name = "article_id")
     )
     private List<Articles> likedArticles;
+//    @ManyToMany
+//    @JoinTable(
+//            name = "follows",
+//            joinColumns = @JoinColumn(name = "follower_id"),
+//            inverseJoinColumns = @JoinColumn(name = "following_id")
+//    )
+//    private List<Users> followers;
 }
