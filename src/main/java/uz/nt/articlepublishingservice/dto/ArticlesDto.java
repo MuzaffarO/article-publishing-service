@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -18,5 +19,6 @@ public class ArticlesDto {
     private String body;
     private UsersDto author;
     private Set<TagDto> tags;
+    private Integer likes;
 
 }
