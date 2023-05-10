@@ -31,4 +31,6 @@ public class Articles {
     private Users author;
     @OneToMany(cascade = CascadeType.ALL)
     private List<Tag> tags;
+    @ManyToMany(mappedBy = "likes")
+    private List<Users> likes;
 }
