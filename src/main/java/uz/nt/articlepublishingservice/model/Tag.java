@@ -1,12 +1,16 @@
 package uz.nt.articlepublishingservice.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tag {
     @Id
     @GeneratedValue(generator = "tag_id")
@@ -14,4 +18,7 @@ public class Tag {
     private Integer id;
     private String name;
     private Integer usage_count;
+    public Tag(String name){
+        this.name = name;
+    }
 }

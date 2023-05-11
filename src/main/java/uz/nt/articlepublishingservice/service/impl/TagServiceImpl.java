@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 public class TagServiceImpl implements TagService {
     private final TagRepository repository;
     @Override
-    public ResponseEntity<Set<Tag>> add(Set<Tag> tags) {
+    public ResponseEntity<Set<Tag>> add(Set<String> tags) {
         Set<Tag> returnTags = tags.stream()
                 .map(tag -> {
-                    Optional<Tag> byName = repository.findByName(tag.getName());
+                    Optional<Tag> byName = repository.findByName(tag);
                     if(byName.isEmpty()){
-                        return repository.save(tag);
+                        return repository.save(new Tag(tag));
                     } else {
                         return byName.get();
                     }
