@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uz.nt.articlepublishingservice.model.Tag;
 
 import java.util.Set;
 
