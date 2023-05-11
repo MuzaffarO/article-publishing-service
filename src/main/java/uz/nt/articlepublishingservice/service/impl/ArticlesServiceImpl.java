@@ -122,7 +122,7 @@ public class ArticlesServiceImpl implements ArticleService {
             return ResponseEntity.badRequest().body("user with not found");
         }
         if (article.isPresent()) {
-            if (article.get().getLikes().contains(article.get())) {
+            if (article.get().getLikes().contains(user.get())) {
                 article.get().getLikes().remove(user.get());
             } else {
                 article.get().getLikes().add(user.get());
