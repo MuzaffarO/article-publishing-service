@@ -19,7 +19,7 @@ public class ArticlesDto {
     private String about;
     private String body;
     private UsersDto author;
-    private Set<Tag> tags;
+    private Set<String> tags;
     private List<UsersDto> likes;
 
 }
