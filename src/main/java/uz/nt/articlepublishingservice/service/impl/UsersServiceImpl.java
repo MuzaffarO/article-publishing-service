@@ -199,10 +199,10 @@ public class UsersServiceImpl implements UsersService {
                     .message("Users not found")
                     .build();
         }
-        if (follower.get().getFollows().contains(followingUser)) {
-            follower.get().getFollows().remove(followingUser);
+        if (follower.get().getFollows().contains(followingUser.get())) {
+            follower.get().getFollows().remove(followingUser.get());
         } else {
-            follower.get().getFollowers().add(followingUser.get());
+            follower.get().getFollows().add(followingUser.get());
         }
         usersRepository.save(follower.get());
         return ResponseDto.<UsersDto>builder()

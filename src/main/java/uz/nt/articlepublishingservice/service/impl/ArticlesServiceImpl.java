@@ -104,9 +104,9 @@ public class ArticlesServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<?> like(LikesDto followsDto) {
-        Optional<Articles> article = articlesRepository.findById(followsDto.getArticle().getId());
-        Optional<Users> user = usersRepository.findById(followsDto.getUser().getId());
+    public ResponseEntity<?> like(LikesDto likesDto) {
+        Optional<Articles> article = articlesRepository.findById(likesDto.getArticle().getId());
+        Optional<Users> user = usersRepository.findById(likesDto.getUser().getId());
         if(user.isEmpty()){
             return ResponseEntity.badRequest().body("user with not found");
         }
@@ -117,7 +117,7 @@ public class ArticlesServiceImpl implements ArticleService {
                 article.get().getLikes().add(user.get());
             }
             articlesRepository.save(article.get());
-            return ResponseEntity.ok(followsDto);
+            return ResponseEntity.ok(mapper.toDto(article.get()));
         } else {
             return ResponseEntity.badRequest().body("article not found");
         }
