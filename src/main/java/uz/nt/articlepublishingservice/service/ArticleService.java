@@ -1,7 +1,6 @@
 package uz.nt.articlepublishingservice.service;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
 import uz.nt.articlepublishingservice.dto.LikesDto;
 
@@ -10,6 +9,6 @@ public interface ArticleService {
     ResponseEntity<?> update(ArticlesDto articlesDto);
     ResponseEntity<?> delete(Integer id);
     ResponseEntity<?> get(Integer id);
+    ResponseEntity<?> like(Integer articleId, Integer userId);
     ResponseEntity<?> getAll();
-    ResponseEntity<?> like(LikesDto LikesDto);
 }
