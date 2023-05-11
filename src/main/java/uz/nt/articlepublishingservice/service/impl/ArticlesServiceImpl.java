@@ -5,33 +5,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
-import uz.nt.articlepublishingservice.dto.TagDto;
 import uz.nt.articlepublishingservice.model.Articles;
+import uz.nt.articlepublishingservice.model.Tag;
 import uz.nt.articlepublishingservice.model.Users;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
+import uz.nt.articlepublishingservice.repository.TagRepository;
 import uz.nt.articlepublishingservice.repository.UsersRepository;
 import uz.nt.articlepublishingservice.service.ArticleService;
+import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
 import uz.nt.articlepublishingservice.service.mapper.ArticlesMapper;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ArticlesServiceImpl implements ArticleService {
-    private final ArticlesRepository articlesRepository;
-    private final UsersRepository usersRepository;
+    private final ArticlesRepository repository;
     private final ArticlesMapper mapper;
     private final TagServiceImpl tagService;
+    private final TagRepository tagRepository;
+    private final UsersRepository usersRepository;
 
     @Override
     public ResponseEntity<?> add(ArticlesDto articlesDto) {
+        ResponseEntity<Set<Tag>> add = tagService.add(articlesDto.getTags());
         Articles articles = mapper.toEntity(articlesDto);
+        articles.setTags(add.getBody());
         try {
-            for (TagDto tagDto : articlesDto.getTags()) {
-                tagService.add(tagDto);
-            }
-            articlesRepository.save(articles);
+            repository.save(articles);
             log.info("articles add {}", articles.getTitle());
             return ResponseEntity.ok(mapper.toDto(articles));
         } catch (Exception e) {
@@ -45,7 +48,7 @@ public class ArticlesServiceImpl implements ArticleService {
         if (articlesDto.getId() == null) {
             return ResponseEntity.badRequest().body("id is null");
         }
-        Optional<Articles> byId = articlesRepository.findById(articlesDto.getId());
+        Optional<Articles> byId = repository.findById(articlesDto.getId());
         if (byId.isEmpty()) {
             return ResponseEntity.ok("Not found");
         }
@@ -57,7 +60,7 @@ public class ArticlesServiceImpl implements ArticleService {
             if (articlesDto.getAbout() != null) {
                 uparticles.setAbout(articlesDto.getAbout());
             }
-            articlesRepository.save(uparticles);
+            repository.save(uparticles);
             return ResponseEntity.ok(mapper.toDto(uparticles));
         } catch (Exception e) {
             return ResponseEntity.ok(e.getMessage());
@@ -70,13 +73,13 @@ public class ArticlesServiceImpl implements ArticleService {
             log.error("article delete null value");
             return ResponseEntity.badRequest().body("Null value");
         }
-        Optional<Articles> byId = articlesRepository.findById(id);
+        Optional<Articles> byId = repository.findById(id);
         if (byId.isEmpty()) {
             log.info("not found id delete article");
             return ResponseEntity.ok("not found");
         }
         try {
-            articlesRepository.delete(byId.get());
+            repository.delete(byId.get());
             log.info("articles deleted {} ", id);
             return ResponseEntity.ok(true);
         } catch (Exception e) {
@@ -88,11 +91,11 @@ public class ArticlesServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<?> get(Integer id) {
         if (id == null) {
-            return ResponseEntity.badRequest().body("null value");
+            return ResponseEntity.badRequest().body(AppStatusMessages.NULL_VALUE);
         }
-        Optional<Articles> byId = articlesRepository.findById(id);
+        Optional<Articles> byId = repository.findById(id);
         if (byId.isEmpty()) {
-            return ResponseEntity.ok("not found");
+            return ResponseEntity.ok(AppStatusMessages.NOT_FOUND);
         }
         try {
             return ResponseEntity.ok(mapper.toDto(byId.get()));
@@ -103,22 +106,35 @@ public class ArticlesServiceImpl implements ArticleService {
     }
 
     @Override
+    public ResponseEntity<?> getAll() {
+        try {
+            return ResponseEntity.ok(repository.findAll());
+        } catch (Exception e) {
+            return ResponseEntity.ok(e.getMessage());
+        }
+    }
+
+    @Override
     public ResponseEntity<?> like(Integer articleId, Integer userId) {
-        Optional<Articles> article = articlesRepository.findById(articleId);
+        Optional<Articles> article = repository.findById(articleId);
         Optional<Users> user = usersRepository.findById(userId);
-        if(user.isEmpty()){
+        if (user.isEmpty()) {
             return ResponseEntity.badRequest().body("user with not found");
         }
         if (article.isPresent()) {
-            if(article.get().getLikes().contains(user.get())){
+            if (article.get().getLikes().contains(article.get())) {
                 article.get().getLikes().remove(user.get());
-            } else{
+            } else {
                 article.get().getLikes().add(user.get());
             }
-            articlesRepository.save(article.get());
+            repository.save(article.get());
             return ResponseEntity.ok(mapper.toDto(article.get()));
         } else {
             return ResponseEntity.badRequest().body("article not found");
         }
+
+//        public ResponseEntity<?> popularArticles () {
+//            return ResponseEntity.ok(tagRepository.getPopularTags());
+//        }
     }
 }

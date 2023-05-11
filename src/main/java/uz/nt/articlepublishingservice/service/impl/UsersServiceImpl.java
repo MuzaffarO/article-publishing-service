@@ -38,7 +38,6 @@ public class UsersServiceImpl implements UsersService {
                         .code(AppStatusCodes.VALIDATION_ERROR_CODE)
                         .message("User with this email " + usersDto.getEmail() + " already exists!")
                         .build();
-//                return new ResponseEntity<String>("User with this email already exists!", HttpStatus.NOT_ACCEPTABLE);
 
             if (byUsername.isPresent())
                 return ResponseDto.<UsersDto>builder()

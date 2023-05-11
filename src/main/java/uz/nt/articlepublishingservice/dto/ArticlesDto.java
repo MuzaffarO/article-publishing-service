@@ -4,8 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uz.nt.articlepublishingservice.model.Tag;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ public class ArticlesDto {
     private String about;
     private String body;
     private UsersDto author;
-    private List<TagDto> tags;
+    private Set<Tag> tags;
     private Integer likes;
 
 }
