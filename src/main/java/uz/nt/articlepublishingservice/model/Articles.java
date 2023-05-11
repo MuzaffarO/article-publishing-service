@@ -2,7 +2,6 @@ package uz.nt.articlepublishingservice.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,8 +33,6 @@ public class Articles {
     @CreationTimestamp
     @CreatedDate
     private LocalDateTime publishDate;
-    @NotEmpty
-    @NotNull
     @ManyToOne
     private Users author;
     @ManyToMany

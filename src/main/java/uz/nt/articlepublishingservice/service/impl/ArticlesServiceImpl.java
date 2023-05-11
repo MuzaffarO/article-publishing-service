@@ -1,11 +1,11 @@
 package uz.nt.articlepublishingservice.service.impl;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
-import uz.nt.articlepublishingservice.dto.TagDto;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Tag;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
@@ -31,9 +31,9 @@ public class ArticlesServiceImpl implements ArticleService {
         Articles articles = mapper.toEntity(articlesDto);
         articles.setTags(add.getBody());
         try {
-            repository.save(articles);
+            Articles save = repository.save(articles);
             log.info("articles add {}",articles.getTitle());
-            return ResponseEntity.ok(mapper.toDto(articles));
+            return ResponseEntity.ok(mapper.toDto(save));
         }catch (Exception e){
             log.error("articles add {}",e.getMessage());
             return ResponseEntity.ok(e.getMessage());
