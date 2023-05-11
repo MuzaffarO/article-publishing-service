@@ -3,39 +3,35 @@ package uz.nt.articlepublishingservice.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import uz.nt.articlepublishingservice.dto.TagDto;
 import uz.nt.articlepublishingservice.model.Tag;
 import uz.nt.articlepublishingservice.repository.TagRepository;
 import uz.nt.articlepublishingservice.service.TagService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
-import uz.nt.articlepublishingservice.service.mapper.TagMapper;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
     private final TagRepository repository;
-    private final TagMapper mapper;
     @Override
-    public ResponseEntity<Set<Tag>> add(Set<TagDto> tagDto) {
-        Set<Tag> tags = new HashSet<>();
-        for (TagDto dto : tagDto) {
-            Optional<Tag> byName = repository.findByName(dto.getName());
-            if(byName.isEmpty()){
-                Tag savedTag = repository.save(mapper.toEntity(dto));
-                tags.add(savedTag);
-            }else{
-                tags.add(byName.get());
-            }
-        }
-        return ResponseEntity.ok(tags);
+    public ResponseEntity<Set<Tag>> add(Set<Tag> tags) {
+        Set<Tag> returnTags = tags.stream()
+                .map(tag -> {
+                    Optional<Tag> byName = repository.findByName(tag.getName());
+                    if(byName.isEmpty()){
+                        return repository.save(tag);
+                    } else {
+                        return byName.get();
+                    }
+                }).collect(Collectors.toSet());
+        return ResponseEntity.ok(returnTags);
     }
 
     @Override
-    public ResponseEntity<?> update(TagDto tagDto) {
+    public ResponseEntity<?> update(Tag tagDto) {
         if(tagDto.getId() == null){
             return ResponseEntity.ok(AppStatusMessages.NULL_VALUE);
         }
@@ -49,7 +45,7 @@ public class TagServiceImpl implements TagService {
         }
         try {
             repository.save(tag);
-            return ResponseEntity.ok(mapper.toDto(tag));
+            return ResponseEntity.ok(tag);
         }catch (Exception e){
             return ResponseEntity.ok(e.getMessage());
         }
