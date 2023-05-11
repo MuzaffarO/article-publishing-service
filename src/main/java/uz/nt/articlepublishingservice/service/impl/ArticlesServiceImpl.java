@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
-import uz.nt.articlepublishingservice.dto.LikesDto;
 import uz.nt.articlepublishingservice.dto.TagDto;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Users;
@@ -104,9 +103,9 @@ public class ArticlesServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<?> like(LikesDto likesDto) {
-        Optional<Articles> article = articlesRepository.findById(likesDto.getArticle().getId());
-        Optional<Users> user = usersRepository.findById(likesDto.getUser().getId());
+    public ResponseEntity<?> like(Integer articleId, Integer userId) {
+        Optional<Articles> article = articlesRepository.findById(articleId);
+        Optional<Users> user = usersRepository.findById(userId);
         if(user.isEmpty()){
             return ResponseEntity.badRequest().body("user with not found");
         }
