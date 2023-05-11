@@ -41,4 +41,27 @@ public class Users {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "article_id"))
     private List<Articles> likes;
+
+    @Override
+    public int hashCode() {
+        return this.id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        Users user = (Users) o;
+        return this.id==user.id;
+    }
+
+    @Override
+    public String toString() {
+        return "Users{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", bio='" + bio + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

@@ -7,7 +7,7 @@ import uz.nt.articlepublishingservice.model.Articles;
 @Mapper(componentModel = "spring")
 public interface ArticlesMapper extends CommonMapper<ArticlesDto, Articles> {
     @Mapping(target = "likes",ignore = true)
-    Articles toEntity(ArticlesDto articlesDto);
-    @Mapping(target = "likes",expression = "java(articles.getLikes().size())")
-    ArticlesDto toDto(Articles articles);
+    Articles toEntity(ArticlesDto dto);
+    @Mapping(target = "likes",expression = "java(entity.getLikes().size())")
+    ArticlesDto toDto(Articles entity);
 }
