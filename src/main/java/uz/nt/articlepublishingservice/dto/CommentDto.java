@@ -7,17 +7,18 @@ import uz.nt.articlepublishingservice.model.Users;
 
 import java.util.Date;
 
-@Data
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class CommentDto {
     private Integer id;
     @NotBlank
     private String description;
     private Date createdDate;
-    @NotNull
-    private Users users;
-    @NotNull
-    private Articles articles;
+    private UsersDto users;
+//    @NotNull
+//    private Articles articles;
 }

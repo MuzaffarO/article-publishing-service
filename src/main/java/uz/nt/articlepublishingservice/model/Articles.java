@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
+import uz.nt.articlepublishingservice.dto.CommentDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,5 +42,7 @@ public class Articles {
     private List<Users> likes;
     @ManyToMany
     private Set<Tag> tags;
+//    @OneToMany
+//    private List<Comment> commentDtoList;
 
 }

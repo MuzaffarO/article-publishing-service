@@ -6,7 +6,7 @@ import uz.nt.articlepublishingservice.dto.ResponseDto;
 import java.util.List;
 
 public interface CommentService {
-    ResponseDto<List<CommentDto>> viewAll();
-    ResponseDto<CommentDto> addComment(CommentDto commentDto);
+    ResponseDto<List<CommentDto>> viewAll(Integer id);
+    ResponseDto<CommentDto> addComment(String comment, Integer article_id);
     ResponseDto<CommentDto> removeComment(Integer id);
 }

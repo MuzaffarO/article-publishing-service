@@ -11,22 +11,22 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("comment")
+@RequestMapping("articles/{article_id}/comment")
 public class CommentResources {
     private final CommentService commentService;
 
     @GetMapping
-    public ResponseDto<List<CommentDto>> getAll(){
-        return commentService.viewAll();
+    public ResponseDto<List<CommentDto>> getAll(@PathVariable Integer article_id){
+        return commentService.viewAll(article_id);
     }
-    @PostMapping("/add")
-    public ResponseDto<CommentDto> createComment(@RequestBody @Valid CommentDto commentDto){
-        return commentService.addComment(commentDto);
+    @PostMapping
+    public ResponseDto<CommentDto> createComment(@RequestParam @Valid String comment, @PathVariable Integer article_id){
+        return commentService.addComment(comment,article_id);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseDto<CommentDto> deleteComment(@RequestParam Integer id){
-        return commentService.removeComment(id);
+    @DeleteMapping("{comment_id}")
+    public ResponseDto<CommentDto> deleteComment(@PathVariable Integer comment_id, @PathVariable String article_id){
+        return commentService.removeComment(comment_id);
     }
 
 
