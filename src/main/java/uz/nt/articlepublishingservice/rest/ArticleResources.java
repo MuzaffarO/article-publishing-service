@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
-import uz.nt.articlepublishingservice.dto.LikesDto;
 import uz.nt.articlepublishingservice.service.impl.ArticlesServiceImpl;
 import uz.nt.articlepublishingservice.service.impl.TagServiceImpl;
 

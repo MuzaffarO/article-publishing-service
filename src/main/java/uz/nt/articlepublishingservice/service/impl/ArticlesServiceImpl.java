@@ -102,11 +102,20 @@ public class ArticlesServiceImpl implements ArticleService {
     }
 
     @Override
+    public ResponseEntity<?> like(Integer articleId, Integer userId) {
+        return null;
+    }
+
+    @Override
     public ResponseEntity<?> getAll() {
         try {
             return ResponseEntity.ok(repository.findAll());
         }catch (Exception e){
             return ResponseEntity.ok(e.getMessage());
         }
+    }
+
+    public ResponseEntity<?> popularArticles() {
+        return ResponseEntity.ok(tagRepository.getPopularTags());
     }
 }
