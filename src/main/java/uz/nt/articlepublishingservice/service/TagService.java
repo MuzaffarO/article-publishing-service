@@ -7,6 +7,5 @@ import java.util.Set;
 
 public interface TagService {
     ResponseEntity<Set<Tag>> add(Set<String> tagDto);
-    ResponseEntity<?> update(Tag tagDto);
     ResponseEntity<?> delete(Integer id);
 }
