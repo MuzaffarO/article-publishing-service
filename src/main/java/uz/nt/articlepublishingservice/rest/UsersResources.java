@@ -30,11 +30,11 @@ public class UsersResources {
     public ResponseDto<UsersDto> getUserById(@PathVariable Integer id){
         return usersService.getUserById(id);
     }
-    @GetMapping("user-list")
+    @GetMapping
     public ResponseDto<List<UsersDto>> getAllUsers(){
         return usersService.getAllUsers();
     }
-    @PatchMapping("edit-user")
+    @PatchMapping
     public ResponseDto<UsersDto> updateUser(@RequestBody UsersDto usersDto){
         return usersService.updateUser(usersDto);
     }
