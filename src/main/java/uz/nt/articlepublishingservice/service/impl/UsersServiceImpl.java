@@ -202,27 +202,31 @@ public class UsersServiceImpl implements UsersService , UserDetailsService {
 
     @Override
     public ResponseDto<UsersDto> follow(Integer id) {
-        UsersDto followqilayotganodam = (UsersDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        System.out.println(followqilayotganodam.toString());
-        Optional<Users> users = usersRepository.findById(id);
-        if (users.isEmpty()) {
+        UsersDto followerDto = (UsersDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        //Optional<Users> follower = usersRepository.findById(followsDto.getFollower().getId());
+        Optional<Users> followingUser = usersRepository.findById(id);
+        if (followingUser.isEmpty()) {
             return ResponseDto.<UsersDto>builder()
                     .code(-2)
                     .message("Users not found")
                     .build();
         }
-        Users followUsers = usersMapper.toEntity(followqilayotganodam);
-        Users users1 = users.get();
-        users1.getFollowers().add(followUsers);
-        usersRepository.save(users1);
+        Users follower = usersMapper.toEntity(followerDto);
+        if (follower.getFollows().contains(followingUser.get())) {
+            follower.getFollows().remove(followingUser.get());
+        } else {
+            follower.getFollows().add(followingUser.get());
+        }
+        usersRepository.save(follower);
         return ResponseDto.<UsersDto>builder()
                 .code(0)
                 .message("OK")
                 .success(true)
-                .data(usersMapper.toDto(users1))
+                .data(usersMapper.toDto(followingUser.get()))
                 .build();
 
     }
+
 
     @Override
     public UsersDto loadUserByUsername(String username) throws UsernameNotFoundException {
