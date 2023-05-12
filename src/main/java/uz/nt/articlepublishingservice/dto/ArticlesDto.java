@@ -20,6 +20,6 @@ public class ArticlesDto {
     private String body;
     private UsersDto author;
     private Set<String> tags;
-    private List<UsersDto> likes;
+    private Integer likes;
 
 }

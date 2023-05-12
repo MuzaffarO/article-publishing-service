@@ -1,6 +1,6 @@
 package uz.nt.articlepublishingservice.service;
 
-import org.springframework.http.ResponseEntity;
+import uz.nt.articlepublishingservice.dto.FollowsDto;
 import uz.nt.articlepublishingservice.dto.ResponseDto;
 import uz.nt.articlepublishingservice.dto.UsersDto;
 
@@ -15,4 +15,6 @@ public interface UsersService {
     ResponseDto<UsersDto> updateUser(UsersDto usersDto);
 
     ResponseDto<UsersDto> deleteUserById(Integer id);
+
+    ResponseDto<UsersDto> follow(FollowsDto followsDto);
 }

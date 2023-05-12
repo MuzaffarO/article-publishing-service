@@ -10,7 +10,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -35,8 +37,9 @@ public class Articles {
     private LocalDateTime publishDate;
     @ManyToOne
     private Users author;
+    @ManyToMany(mappedBy = "likes")
+    private List<Users> likes;
     @ManyToMany
     private Set<Tag> tags;
-    @ManyToMany(mappedBy = "likedArticles")
-    private List<Users> likes;
+
 }
