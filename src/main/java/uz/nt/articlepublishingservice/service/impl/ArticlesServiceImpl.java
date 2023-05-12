@@ -2,14 +2,13 @@ package uz.nt.articlepublishingservice.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Tag;
+import uz.nt.articlepublishingservice.model.Users;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
-import uz.nt.articlepublishingservice.repository.TagRepository;
+import uz.nt.articlepublishingservice.repository.UsersRepository;
 import uz.nt.articlepublishingservice.service.ArticleService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
 import uz.nt.articlepublishingservice.service.mapper.ArticlesMapper;
@@ -24,7 +23,8 @@ public class ArticlesServiceImpl implements ArticleService {
     private final ArticlesRepository repository;
     private final ArticlesMapper mapper;
     private final TagServiceImpl tagService;
-    private final TagRepository tagRepository;
+    private final UsersRepository usersRepository;
+
     @Override
     public ResponseEntity<?> add(ArticlesDto articlesDto) {
         ResponseEntity<Set<Tag>> add = tagService.add(articlesDto.getTags());
@@ -103,7 +103,22 @@ public class ArticlesServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<?> like(Integer articleId, Integer userId) {
-        return null;
+        Optional<Articles> article = repository.findById(articleId);
+        Optional<Users> user = usersRepository.findById(userId);
+        if (user.isEmpty()) {
+            return ResponseEntity.badRequest().body("user with not found");
+        }
+        if (article.isPresent()) {
+            if (article.get().getLikes().contains(user.get())) {
+                article.get().getLikes().remove(user.get());
+            } else {
+                article.get().getLikes().add(user.get());
+            }
+            repository.save(article.get());
+            return ResponseEntity.ok(mapper.toDto(article.get()));
+        } else {
+            return ResponseEntity.badRequest().body("article not found");
+        }
     }
 
     @Override
@@ -113,9 +128,5 @@ public class ArticlesServiceImpl implements ArticleService {
         }catch (Exception e){
             return ResponseEntity.ok(e.getMessage());
         }
-    }
-
-    public ResponseEntity<?> popularArticles() {
-        return ResponseEntity.ok(tagRepository.getPopularTags());
     }
 }
