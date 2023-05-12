@@ -40,6 +40,8 @@ public class Users {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "article_id"))
     private List<Articles> likes;
+    @Column(columnDefinition = "TEXT default('USER')")
+    private String role;
 
     @Override
     public int hashCode() {
