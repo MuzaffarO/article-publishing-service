@@ -109,8 +109,4 @@ public class ArticlesServiceImpl implements ArticleService {
             return ResponseEntity.ok(e.getMessage());
         }
     }
-
-    public ResponseEntity<?> popularArticles() {
-        return ResponseEntity.ok(tagRepository.getPopularTags());
-    }
 }
