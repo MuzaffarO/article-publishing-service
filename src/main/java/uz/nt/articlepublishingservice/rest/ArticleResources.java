@@ -37,8 +37,8 @@ public class ArticleResources {
     public ResponseEntity<?> popularTags(){
         return tagService.popularArticles();
     }
-    @PostMapping("/like")
-    public ResponseEntity<?> like(@RequestBody LikesDto likesDto){
-        return articlesService.like(likesDto);
+    @PostMapping("/like/{articleId}")
+    public ResponseEntity<?> like(@PathVariable Integer articleId, @RequestParam Integer userId){
+        return articlesService.like(articleId,userId);
     }
 }

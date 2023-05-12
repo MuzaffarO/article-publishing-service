@@ -1,31 +1,42 @@
 package uz.nt.articlepublishingservice.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.FollowsDto;
+import uz.nt.articlepublishingservice.dto.LoginDto;
 import uz.nt.articlepublishingservice.dto.ResponseDto;
 import uz.nt.articlepublishingservice.dto.UsersDto;
 import uz.nt.articlepublishingservice.model.Users;
 import uz.nt.articlepublishingservice.repository.UsersRepository;
+import uz.nt.articlepublishingservice.security.JwtService;
 import uz.nt.articlepublishingservice.service.UsersService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusCodes;
 import uz.nt.articlepublishingservice.service.mapper.UsersMapper;
 
+import java.net.http.HttpRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static uz.nt.articlepublishingservice.service.additional.AppStatusCodes.DATABASE_ERROR_CODE;
-import static uz.nt.articlepublishingservice.service.additional.AppStatusCodes.NOT_FOUND_ERROR_CODE;
+import static uz.nt.articlepublishingservice.service.additional.AppStatusCodes.*;
 import static uz.nt.articlepublishingservice.service.additional.AppStatusMessages.*;
 
 
 @Service
 @RequiredArgsConstructor
-public class UsersServiceImpl implements UsersService {
+public class UsersServiceImpl implements UsersService , UserDetailsService {
     private final UsersRepository usersRepository;
     private final UsersMapper usersMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     public ResponseDto<UsersDto> addUser(UsersDto usersDto) {
@@ -46,6 +57,7 @@ public class UsersServiceImpl implements UsersService {
                         .build();
 
             Users users = usersMapper.toEntity(usersDto);
+            users.setRole("USER");
             usersRepository.save(users);
             return ResponseDto.<UsersDto>builder()
                     .success(true)
@@ -65,7 +77,7 @@ public class UsersServiceImpl implements UsersService {
     public ResponseDto<List<UsersDto>> getAllUsers() {
         try {
             return ResponseDto.<List<UsersDto>>builder()
-                    .code(AppStatusCodes.OK_CODE)
+                    .code(OK_CODE)
                     .message(OK)
                     .data(usersRepository.findAll().stream()
                             .map(usersMapper::toDto)
@@ -189,21 +201,23 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public ResponseDto<UsersDto> follow(FollowsDto followsDto) {
-        Optional<Users> follower = usersRepository.findById(followsDto.getFollower().getId());
-        Optional<Users> followingUser = usersRepository.findById(followsDto.getUser().getId());
-        if (followingUser.isEmpty() || follower.isEmpty()) {
+    public ResponseDto<UsersDto> follow(Integer id) {
+        UsersDto followerDto = (UsersDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        //Optional<Users> follower = usersRepository.findById(followsDto.getFollower().getId());
+        Optional<Users> followingUser = usersRepository.findById(id);
+        if (followingUser.isEmpty()) {
             return ResponseDto.<UsersDto>builder()
                     .code(-2)
                     .message("Users not found")
                     .build();
         }
-        if (follower.get().getFollows().contains(followingUser.get())) {
-            follower.get().getFollows().remove(followingUser.get());
+        Users follower = usersMapper.toEntity(followerDto);
+        if (follower.getFollows().contains(followingUser.get())) {
+            follower.getFollows().remove(followingUser.get());
         } else {
-            follower.get().getFollows().add(followingUser.get());
+            follower.getFollows().add(followingUser.get());
         }
-        usersRepository.save(follower.get());
+        usersRepository.save(follower);
         return ResponseDto.<UsersDto>builder()
                 .code(0)
                 .message("OK")
@@ -211,5 +225,30 @@ public class UsersServiceImpl implements UsersService {
                 .data(usersMapper.toDto(followingUser.get()))
                 .build();
 
+    }
+
+
+    @Override
+    public UsersDto loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<Users> users = usersRepository.findFirstByUsername(username);
+        if(users.isEmpty()) throw new UsernameNotFoundException("user is not found");
+
+        return usersMapper.toDto(users.get());
+    }
+    public ResponseDto<String> login(LoginDto loginDto) {
+        UsersDto users = loadUserByUsername(loginDto.getUsername());
+        if(!passwordEncoder.matches(loginDto.getPassword(), users.getPassword())){
+            return ResponseDto.<String>builder()
+                    .message("Password is not correct")
+                    .code(VALIDATION_ERROR_CODE)
+                    .build();
+        }
+
+        return ResponseDto.<String>builder()
+                .code(OK_CODE)
+                .message(OK)
+                .data(jwtService.generateToken(users))
+                .success(true)
+                .build();
     }
 }

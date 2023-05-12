@@ -1,17 +1,13 @@
 package uz.nt.articlepublishingservice.service.impl;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
-import uz.nt.articlepublishingservice.dto.LikesDto;
-import uz.nt.articlepublishingservice.dto.TagDto;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Tag;
 import uz.nt.articlepublishingservice.model.Users;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
-import uz.nt.articlepublishingservice.repository.TagRepository;
 import uz.nt.articlepublishingservice.repository.UsersRepository;
 import uz.nt.articlepublishingservice.service.ArticleService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
@@ -27,17 +23,17 @@ public class ArticlesServiceImpl implements ArticleService {
     private final ArticlesRepository repository;
     private final ArticlesMapper mapper;
     private final TagServiceImpl tagService;
-    private final TagRepository tagRepository;
     private final UsersRepository usersRepository;
+
     @Override
     public ResponseEntity<?> add(ArticlesDto articlesDto) {
         ResponseEntity<Set<Tag>> add = tagService.add(articlesDto.getTags());
         Articles articles = mapper.toEntity(articlesDto);
         articles.setTags(add.getBody());
         try {
-            repository.save(articles);
+            Articles save = repository.save(articles);
             log.info("articles add {}",articles.getTitle());
-            return ResponseEntity.ok(mapper.toDto(articles));
+            return ResponseEntity.ok(mapper.toDto(save));
         }catch (Exception e){
             log.error("articles add {}",e.getMessage());
             return ResponseEntity.ok(e.getMessage());
@@ -106,34 +102,31 @@ public class ArticlesServiceImpl implements ArticleService {
     }
 
     @Override
+    public ResponseEntity<?> like(Integer articleId, Integer userId) {
+        Optional<Articles> article = repository.findById(articleId);
+        Optional<Users> user = usersRepository.findById(userId);
+        if (user.isEmpty()) {
+            return ResponseEntity.badRequest().body("user with not found");
+        }
+        if (article.isPresent()) {
+            if (article.get().getLikes().contains(user.get())) {
+                article.get().getLikes().remove(user.get());
+            } else {
+                article.get().getLikes().add(user.get());
+            }
+            repository.save(article.get());
+            return ResponseEntity.ok(mapper.toDto(article.get()));
+        } else {
+            return ResponseEntity.badRequest().body("article not found");
+        }
+    }
+
+    @Override
     public ResponseEntity<?> getAll() {
         try {
             return ResponseEntity.ok(repository.findAll());
         }catch (Exception e){
             return ResponseEntity.ok(e.getMessage());
         }
-    }
-    @Override
-    public ResponseEntity<?> like(LikesDto followsDto) {
-        Optional<Articles> article = repository.findById(followsDto.getArticle().getId());
-        Optional<Users> user = usersRepository.findById(followsDto.getUser().getId());
-        if(user.isEmpty()){
-            return ResponseEntity.badRequest().body("user with not found");
-        }
-        if (article.isPresent()) {
-            if(article.get().getLikes().contains(article.get())){
-                article.get().getLikes().remove(user.get());
-            } else{
-                article.get().getLikes().add(user.get());
-            }
-            repository.save(article.get());
-            return ResponseEntity.ok(followsDto);
-        } else {
-            return ResponseEntity.badRequest().body("article not found");
-        }
-    }
-
-    public ResponseEntity<?> popularArticles() {
-        return ResponseEntity.ok(tagRepository.getPopularTags());
     }
 }
