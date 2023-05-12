@@ -29,28 +29,6 @@ public class TagServiceImpl implements TagService {
                 }).collect(Collectors.toSet());
         return ResponseEntity.ok(returnTags);
     }
-
-    @Override
-    public ResponseEntity<?> update(Tag tagDto) {
-        if(tagDto.getId() == null){
-            return ResponseEntity.ok(AppStatusMessages.NULL_VALUE);
-        }
-        Optional<Tag> byId = repository.findById(tagDto.getId());
-        if(byId.isEmpty()){
-            return ResponseEntity.ok(AppStatusMessages.NOT_FOUND);
-        }
-        Tag tag = byId.get();
-        if(tagDto.getName() != null){
-            tag.setName(tagDto.getName());
-        }
-        try {
-            repository.save(tag);
-            return ResponseEntity.ok(tag);
-        }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
-        }
-    }
-
     @Override
     public ResponseEntity<?> delete(Integer id) {
         if(id == null){

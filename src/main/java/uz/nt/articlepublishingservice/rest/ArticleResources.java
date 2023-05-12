@@ -6,25 +6,27 @@ import org.springframework.web.bind.annotation.*;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
 import uz.nt.articlepublishingservice.dto.LikesDto;
 import uz.nt.articlepublishingservice.service.impl.ArticlesServiceImpl;
+import uz.nt.articlepublishingservice.service.impl.TagServiceImpl;
 
 @RestController
 @RequestMapping("/articles")
 @RequiredArgsConstructor
 public class ArticleResources {
     private final ArticlesServiceImpl articlesService;
-    @PostMapping("/add")
+    private final TagServiceImpl tagService;
+    @PostMapping
     public ResponseEntity<?> add(@RequestBody ArticlesDto articlesDto){
         return articlesService.add(articlesDto);
     }
-    @GetMapping("/get-all")
+    @GetMapping
     public ResponseEntity<?> getAll(){
         return articlesService.getAll();
     }
-    @PatchMapping("/update")
+    @PatchMapping
     public ResponseEntity<?> update(@RequestBody ArticlesDto articlesDto){
         return articlesService.update(articlesDto);
     }
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id){
         return articlesService.delete(id);
     }
@@ -34,7 +36,7 @@ public class ArticleResources {
     }
     @GetMapping("/popular-tags")
     public ResponseEntity<?> popularTags(){
-        return articlesService.popularArticles();
+        return tagService.popularArticles();
     }
     @PostMapping("/like")
     public ResponseEntity<?> like(@RequestBody LikesDto likesDto){
