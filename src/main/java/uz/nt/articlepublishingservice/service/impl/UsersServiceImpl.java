@@ -3,6 +3,7 @@ package uz.nt.articlepublishingservice.service.impl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -202,29 +203,67 @@ public class UsersServiceImpl implements UsersService , UserDetailsService {
 
     @Override
     public ResponseDto<UsersDto> follow(Integer id) {
-        UsersDto followerDto = (UsersDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        //Optional<Users> follower = usersRepository.findById(followsDto.getFollower().getId());
-        Optional<Users> followingUser = usersRepository.findById(id);
-        if (followingUser.isEmpty()) {
+//        UsersDto followerDto = (UsersDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        //Optional<Users> follower = usersRepository.findById(followsDto.getFollower().getId());
+//        Optional<Users> followingUser = usersRepository.findById(id);
+//        if (followingUser.isEmpty()) {
+//            return ResponseDto.<UsersDto>builder()
+//                    .code(-2)
+//                    .message("Users not found")
+//                    .build();
+//        }
+//        Users follower = usersMapper.toEntity(followerDto);
+//        if (follower.getFollows().contains(followingUser.get())) {
+//            follower.getFollows().remove(followingUser.get());
+//        } else {
+//            follower.getFollows().add(followingUser.get());
+//        }
+//        usersRepository.save(follower);
+//        return ResponseDto.<UsersDto>builder()
+//                .code(0)
+//                .message("OK")
+//                .success(true)
+//                .data(usersMapper.toDto(followingUser.get()))
+//                .build();
+
+
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication.getPrincipal() instanceof UsersDto)) {
+            return ResponseDto.<UsersDto>builder()
+                    .code(-1)
+                    .message("User not authenticated")
+                    .build();
+        }
+
+        UsersDto followerDto = (UsersDto) authentication.getPrincipal();
+        Optional<Users> followerOptional = usersRepository.findById(followerDto.getId());
+        Optional<Users> followingUserOptional = usersRepository.findById(id);
+
+        if (followerOptional.isEmpty() || followingUserOptional.isEmpty()) {
             return ResponseDto.<UsersDto>builder()
                     .code(-2)
                     .message("Users not found")
                     .build();
         }
-        Users follower = usersMapper.toEntity(followerDto);
-        if (follower.getFollows().contains(followingUser.get())) {
-            follower.getFollows().remove(followingUser.get());
+
+        Users follower = followerOptional.get();
+        Users followingUser = followingUserOptional.get();
+
+        if (follower.getFollows().contains(followingUser)) {
+            follower.getFollows().remove(followingUser);
         } else {
-            follower.getFollows().add(followingUser.get());
+            follower.getFollows().add(followingUser);
         }
+
         usersRepository.save(follower);
+
         return ResponseDto.<UsersDto>builder()
                 .code(0)
                 .message("OK")
                 .success(true)
-                .data(usersMapper.toDto(followingUser.get()))
+                .data(usersMapper.toDto(followingUser))
                 .build();
-
     }
 
 
