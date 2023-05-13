@@ -42,7 +42,7 @@ public class ArticleResources {
         return tagService.popularArticles();
     }
     @PostMapping("/like/{articleId}")
-    public ResponseEntity<?> like(@PathVariable Integer articleId, @RequestParam Integer userId){
-        return articlesService.like(articleId,userId);
+    public ResponseEntity<?> like(@PathVariable Integer articleId){
+        return articlesService.like(articleId);
     }
 }

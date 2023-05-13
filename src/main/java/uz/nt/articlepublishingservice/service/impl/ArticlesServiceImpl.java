@@ -6,13 +6,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
-import uz.nt.articlepublishingservice.dto.ResponseDto;
 import uz.nt.articlepublishingservice.dto.UsersDto;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Tag;
 import uz.nt.articlepublishingservice.model.Users;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
-import uz.nt.articlepublishingservice.repository.UsersRepository;
 import uz.nt.articlepublishingservice.service.ArticleService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
 import uz.nt.articlepublishingservice.service.mapper.ArticlesMapper;
@@ -28,7 +26,6 @@ public class ArticlesServiceImpl implements ArticleService {
     private final ArticlesRepository repository;
     private final ArticlesMapper mapper;
     private final TagServiceImpl tagService;
-    private final UsersRepository usersRepository;
     private final UsersMapper usersMapper;
 
     @Override
@@ -58,6 +55,11 @@ public class ArticlesServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<?> update(ArticlesDto articlesDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UsersDto usersDto = (UsersDto) authentication.getPrincipal();
+        if(usersDto.getId() != articlesDto.getAuthor().getId()){
+            return ResponseEntity.badRequest().body("method not allow");
+        }
         if(articlesDto.getId() == null){
             return ResponseEntity.badRequest().body("id is null");
         }
@@ -81,6 +83,8 @@ public class ArticlesServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<?> delete(Integer id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UsersDto usersDto = (UsersDto) authentication.getPrincipal();
         if(id == null){
             log.error("article delete null value");
             return ResponseEntity.badRequest().body("Null value");
@@ -90,12 +94,16 @@ public class ArticlesServiceImpl implements ArticleService {
             log.info("not found id delete article");
             return ResponseEntity.ok("not found");
         }
-        try {
-            repository.delete(byId.get());
-            log.info("articles deleted {} ",id);
-            return ResponseEntity.ok(true);
-        }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+        if(byId.get().getAuthor().getId() == usersDto.getId()) {
+            try {
+                repository.delete(byId.get());
+                log.info("articles deleted {} ", id);
+                return ResponseEntity.ok(true);
+            } catch (Exception e) {
+                return ResponseEntity.ok(e.getMessage());
+            }
+        }else {
+            return ResponseEntity.badRequest().body("not allow");
         }
 
     }
@@ -118,22 +126,25 @@ public class ArticlesServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<?> like(Integer articleId, Integer userId) {
-        Optional<Articles> article = repository.findById(articleId);
-        Optional<Users> user = usersRepository.findById(userId);
-        if (user.isEmpty()) {
-            return ResponseEntity.badRequest().body("user with not found");
-        }
-        if (article.isPresent()) {
-            if (article.get().getLikes().contains(user.get())) {
-                article.get().getLikes().remove(user.get());
+    public ResponseEntity<?> like(Integer articleId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication.isAuthenticated()){
+            UsersDto userDto = (UsersDto) authentication.getPrincipal();
+            Users users = usersMapper.toEntity(userDto);
+            Optional<Articles> article = repository.findById(articleId);
+            if (article.isPresent()) {
+                if (article.get().getLikes().contains(users)) {
+                    article.get().getLikes().remove(users);
+                } else {
+                    article.get().getLikes().add(users);
+                }
+                repository.save(article.get());
+                return ResponseEntity.ok(mapper.toDto(article.get()));
             } else {
-                article.get().getLikes().add(user.get());
+                return ResponseEntity.badRequest().body("article not found");
             }
-            repository.save(article.get());
-            return ResponseEntity.ok(mapper.toDto(article.get()));
-        } else {
-            return ResponseEntity.badRequest().body("article not found");
+        } else{
+            return ResponseEntity.ok("User not authenticated");
         }
     }
 

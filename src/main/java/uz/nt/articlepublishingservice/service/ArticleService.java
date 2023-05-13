@@ -8,6 +8,6 @@ public interface ArticleService {
     ResponseEntity<?> update(ArticlesDto articlesDto);
     ResponseEntity<?> delete(Integer id);
     ResponseEntity<?> get(Integer id);
-    ResponseEntity<?> like(Integer articleId, Integer userId);
+    ResponseEntity<?> like(Integer articleId);
     ResponseEntity<?> getAll();
 }
