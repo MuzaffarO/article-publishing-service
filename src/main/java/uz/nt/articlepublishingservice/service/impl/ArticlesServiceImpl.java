@@ -2,8 +2,12 @@ package uz.nt.articlepublishingservice.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
+import uz.nt.articlepublishingservice.dto.ResponseDto;
+import uz.nt.articlepublishingservice.dto.UsersDto;
 import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Tag;
 import uz.nt.articlepublishingservice.model.Users;
@@ -12,6 +16,7 @@ import uz.nt.articlepublishingservice.repository.UsersRepository;
 import uz.nt.articlepublishingservice.service.ArticleService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
 import uz.nt.articlepublishingservice.service.mapper.ArticlesMapper;
+import uz.nt.articlepublishingservice.service.mapper.UsersMapper;
 
 import java.util.Optional;
 import java.util.Set;
@@ -24,19 +29,30 @@ public class ArticlesServiceImpl implements ArticleService {
     private final ArticlesMapper mapper;
     private final TagServiceImpl tagService;
     private final UsersRepository usersRepository;
+    private final UsersMapper usersMapper;
 
     @Override
     public ResponseEntity<?> add(ArticlesDto articlesDto) {
-        ResponseEntity<Set<Tag>> add = tagService.add(articlesDto.getTags());
-        Articles articles = mapper.toEntity(articlesDto);
-        articles.setTags(add.getBody());
-        try {
-            Articles save = repository.save(articles);
-            log.info("articles add {}",articles.getTitle());
-            return ResponseEntity.ok(mapper.toDto(save));
-        }catch (Exception e){
-            log.error("articles add {}",e.getMessage());
-            return ResponseEntity.ok(e.getMessage());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(!(authentication.getPrincipal() instanceof UsersDto)){
+            return ResponseEntity.badRequest().body("User not authenticated");
+
+        }
+        if(articlesDto.getAuthor().getId() == ((UsersDto) authentication.getPrincipal()).getId()) {
+            ResponseEntity<Set<Tag>> add = tagService.add(articlesDto.getTags());
+            Articles articles = mapper.toEntity(articlesDto);
+            articles.setTags(add.getBody());
+            articles.setAuthor(usersMapper.toEntity((UsersDto) authentication.getPrincipal()));
+            try {
+                Articles save = repository.save(articles);
+                log.info("articles add {}", articles.getTitle());
+                return ResponseEntity.ok(mapper.toDto(save));
+            } catch (Exception e) {
+                log.error("articles add {}", e.getMessage());
+                return ResponseEntity.ok(e.getMessage());
+            }
+        } else {
+            return ResponseEntity.badRequest().body("not allowed user");
         }
     }
 

@@ -9,7 +9,7 @@ import uz.nt.articlepublishingservice.model.Articles;
 public abstract class ArticlesMapper implements CommonMapper<ArticlesDto, Articles> {
     @Autowired
     protected TagMapper tagMapper;
-    @Mapping(target = "likes",expression = "java(articles.getLikes().size())")
+    @Mapping(target = "likes",expression = "java((articles.getLikes() == null) ? 0 : articles.getLikes().size())")
     @Mapping(target = "tags", expression = "java(tagMapper.toDto(articles.getTags()))")
     public abstract ArticlesDto toDto(Articles articles);
     @Mapping(target = "likes",ignore = true)
