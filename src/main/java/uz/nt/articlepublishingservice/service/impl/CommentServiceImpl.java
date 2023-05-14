@@ -1,13 +1,19 @@
 package uz.nt.articlepublishingservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import uz.nt.articlepublishingservice.dto.CommentDto;
 import uz.nt.articlepublishingservice.dto.ResponseDto;
+import uz.nt.articlepublishingservice.dto.UsersDto;
+import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Comment;
+import uz.nt.articlepublishingservice.repository.ArticlesRepository;
 import uz.nt.articlepublishingservice.repository.CommentRepository;
 import uz.nt.articlepublishingservice.service.CommentService;
 import uz.nt.articlepublishingservice.service.mapper.CommentMapper;
+import uz.nt.articlepublishingservice.service.mapper.UsersMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +23,13 @@ import java.util.Optional;
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
+    private final ArticlesRepository articlesRepository;
+    private final UsersMapper usersMapper;
 
     @Override
-    public ResponseDto<List<CommentDto>> viewAll() {
-        List<CommentDto> commentList = commentRepository.findAll().stream().map(commentMapper:: toDto).toList();
+    public ResponseDto<List<CommentDto>> viewAll(Integer id) {
+        
+        List<CommentDto> commentList = commentRepository.findAllByArticles_Id(id).stream().map(commentMapper:: toDto).toList();
 
         return ResponseDto.<List<CommentDto>>builder()
                 .message("OK")
@@ -31,24 +40,33 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseDto<CommentDto> addComment(CommentDto commentDto) {
-        try {
+    public ResponseDto<CommentDto> addComment(Integer id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Optional<Articles> byId = articlesRepository.findById(id);
+        if(!byId.isEmpty()) {
+            try {
+                UsersDto userDto = (UsersDto) authentication.getPrincipal();
+                CommentDto build = CommentDto.<CommentDto>builder().articles(byId.get()).users(usersMapper.toEntityPassword(userDto)).build();
+                Comment comment = commentMapper.toEntity(build);
+                commentRepository.save(comment);
+                return ResponseDto.<CommentDto>builder()
+                        .data(commentMapper.toDto(comment))
+                        .message("OK")
+                        .code(1)
+                        .success(true)
+                        .build();
+            } catch (Exception e) {
+                return ResponseDto.<CommentDto>builder()
+                        .code(-1)
+                        .success(false)
+                        .message("Database error" + ':' + e.getMessage())
+                        .build();
+            }
+        }else {
             return ResponseDto.<CommentDto>builder()
-                    .data(commentMapper.toDto(
-                            commentRepository.save(
-                                    commentMapper.toEntity(commentDto)
-                            )
-                    ))
-                    .message("OK")
-                    .code(1)
+                    .message("article not found")
                     .success(true)
-                    .build();
-        }catch (Exception e){
-            return ResponseDto.<CommentDto>builder()
-                    .code(-1)
-                    .success(false)
-                    .message("Database error" + ':' + e.getMessage())
-                    .data(commentDto)
+                    .code(0)
                     .build();
         }
     }

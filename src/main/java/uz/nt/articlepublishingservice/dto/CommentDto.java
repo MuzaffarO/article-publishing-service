@@ -17,9 +17,6 @@ public class CommentDto {
     private Integer id;
     @NotBlank
     private String description;
-    private Date createdDate;
-    @NotNull
     private Users users;
-    @NotNull
     private Articles articles;
 }
