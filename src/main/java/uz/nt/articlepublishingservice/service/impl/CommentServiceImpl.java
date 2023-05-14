@@ -12,6 +12,7 @@ import uz.nt.articlepublishingservice.model.Comment;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
 import uz.nt.articlepublishingservice.repository.CommentRepository;
 import uz.nt.articlepublishingservice.service.CommentService;
+import uz.nt.articlepublishingservice.service.additional.AppStatusCodes;
 import uz.nt.articlepublishingservice.service.mapper.CommentMapper;
 import uz.nt.articlepublishingservice.service.mapper.UsersMapper;
 
@@ -40,33 +41,33 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseDto<CommentDto> addComment(Integer id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Optional<Articles> byId = articlesRepository.findById(id);
-        if(!byId.isEmpty()) {
-            try {
-                UsersDto userDto = (UsersDto) authentication.getPrincipal();
-                CommentDto build = CommentDto.<CommentDto>builder().articles(byId.get()).users(usersMapper.toEntityPassword(userDto)).build();
-                Comment comment = commentMapper.toEntity(build);
-                commentRepository.save(comment);
-                return ResponseDto.<CommentDto>builder()
-                        .data(commentMapper.toDto(comment))
-                        .message("OK")
-                        .code(1)
-                        .success(true)
-                        .build();
-            } catch (Exception e) {
-                return ResponseDto.<CommentDto>builder()
-                        .code(-1)
-                        .success(false)
-                        .message("Database error" + ':' + e.getMessage())
-                        .build();
-            }
-        }else {
+    public ResponseDto<CommentDto> addComment(Integer id, String comment) {
+        UsersDto principal = (UsersDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<Articles> article = articlesRepository.findById(id);
+        if (article.isEmpty()) {
             return ResponseDto.<CommentDto>builder()
+                    .code(AppStatusCodes.NOT_FOUND_ERROR_CODE)
                     .message("article not found")
+                    .build();
+        }
+        Comment commentSave = Comment.builder()
+                .users(usersMapper.toEntityPassword(principal))
+                .description(comment)
+                .articles(article.get())
+                .build();
+        try {
+            CommentDto commentDto = commentMapper.toDto(commentRepository.save(commentSave));
+            return ResponseDto.<CommentDto>builder()
+                    .data(commentDto)
+                    .message("OK")
+                    .code(AppStatusCodes.OK_CODE)
                     .success(true)
-                    .code(0)
+                    .build();
+        } catch (Exception e) {
+            return ResponseDto.<CommentDto>builder()
+                    .code(AppStatusCodes.DATABASE_ERROR_CODE)
+                    .message("Database error")
+                    .data(commentMapper.toDto(commentSave))
                     .build();
         }
     }

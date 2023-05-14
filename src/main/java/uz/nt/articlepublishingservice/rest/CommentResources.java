@@ -1,5 +1,6 @@
 package uz.nt.articlepublishingservice.rest;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/articles/comment")
+@SecurityRequirement(name = "Authorization")
 public class CommentResources {
     private final CommentService commentService;
 
@@ -23,8 +25,8 @@ public class CommentResources {
     }
     @PostMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_USER')")
-    public ResponseDto<CommentDto> createComment(@PathVariable Integer id){
-        return commentService.addComment(id);
+    public ResponseDto<CommentDto> createComment(@RequestParam String comment,@PathVariable Integer id){
+        return commentService.addComment(id, comment);
     }
 
     @DeleteMapping("/{id}")

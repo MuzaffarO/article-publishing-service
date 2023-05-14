@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface CommentService {
     ResponseDto<List<CommentDto>> viewAll(Integer id);
-    ResponseDto<CommentDto> addComment(Integer id);
+    ResponseDto<CommentDto> addComment(Integer id, String comment);
     ResponseDto<CommentDto> removeComment(Integer id);
 }
