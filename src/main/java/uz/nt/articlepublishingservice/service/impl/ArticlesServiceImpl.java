@@ -11,6 +11,7 @@ import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.model.Tag;
 import uz.nt.articlepublishingservice.model.Users;
 import uz.nt.articlepublishingservice.repository.ArticlesRepository;
+import uz.nt.articlepublishingservice.repository.UsersRepository;
 import uz.nt.articlepublishingservice.service.ArticleService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
 import uz.nt.articlepublishingservice.service.mapper.ArticlesMapper;
@@ -27,6 +28,7 @@ public class ArticlesServiceImpl implements ArticleService {
     private final ArticlesMapper mapper;
     private final TagServiceImpl tagService;
     private final UsersMapper usersMapper;
+    private final UsersRepository usersRepository;
 
     @Override
     public ResponseEntity<?> add(ArticlesDto articlesDto) {
@@ -130,16 +132,17 @@ public class ArticlesServiceImpl implements ArticleService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication.isAuthenticated()){
             UsersDto userDto = (UsersDto) authentication.getPrincipal();
-            Users users = usersMapper.toEntity(userDto);
+            Users users = usersMapper.toEntityPassword(userDto);
             Optional<Articles> article = repository.findById(articleId);
             if (article.isPresent()) {
-                if (article.get().getLikes().contains(users)) {
-                    article.get().getLikes().remove(users);
+                Articles articles = article.get();
+                if (articles.getLikes().contains(users)) {
+                    users.getLikes().remove(articles);
                 } else {
-                    article.get().getLikes().add(users);
+                    users.getLikes().add(articles);
                 }
-                repository.save(article.get());
-                return ResponseEntity.ok(mapper.toDto(article.get()));
+                usersRepository.save(users);
+                return ResponseEntity.ok(mapper.toDto(articles));
             } else {
                 return ResponseEntity.badRequest().body("article not found");
             }

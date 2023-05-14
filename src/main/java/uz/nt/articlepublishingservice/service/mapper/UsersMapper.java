@@ -13,4 +13,5 @@ public abstract class UsersMapper implements CommonMapper<UsersDto, Users> {
     PasswordEncoder passwordEncoder;
     @Mapping(target = "password",expression = "java(passwordEncoder.encode((usersDto.getPassword())))")
     public abstract Users toEntity(UsersDto usersDto);
+    public abstract Users toEntityPassword(UsersDto usersDto);
 }
