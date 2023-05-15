@@ -2,9 +2,6 @@ package uz.nt.articlepublishingservice.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
-import uz.nt.articlepublishingservice.model.Articles;
-import uz.nt.articlepublishingservice.model.Users;
-
 import java.util.Date;
 
 

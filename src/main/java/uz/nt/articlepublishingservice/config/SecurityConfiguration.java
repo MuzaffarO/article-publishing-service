@@ -77,7 +77,7 @@ public class SecurityConfiguration {
         return http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers(HttpMethod.POST,"/user").permitAll()
+                .requestMatchers(HttpMethod.POST,"/user**").permitAll()
                 .requestMatchers(HttpMethod.POST, "articles/{article_id}/comment/").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "articles/{article_id}/comment/{comment_id}").permitAll()
                 .requestMatchers("/user/login","/user/sign-up").permitAll()
