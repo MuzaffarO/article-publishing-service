@@ -13,6 +13,7 @@ import uz.nt.articlepublishingservice.repository.ArticlesRepository;
 import uz.nt.articlepublishingservice.repository.CommentRepository;
 import uz.nt.articlepublishingservice.service.CommentService;
 import uz.nt.articlepublishingservice.service.additional.AppStatusCodes;
+import uz.nt.articlepublishingservice.service.additional.AppStatusMessages;
 import uz.nt.articlepublishingservice.service.mapper.CommentMapper;
 import uz.nt.articlepublishingservice.service.mapper.UsersMapper;
 
@@ -47,7 +48,7 @@ public class CommentServiceImpl implements CommentService {
         if (article.isEmpty()) {
             return ResponseDto.<CommentDto>builder()
                     .code(AppStatusCodes.NOT_FOUND_ERROR_CODE)
-                    .message("article not found")
+                    .message(AppStatusMessages.NOT_FOUND)
                     .build();
         }
         Comment commentSave = Comment.builder()
@@ -59,14 +60,14 @@ public class CommentServiceImpl implements CommentService {
             CommentDto commentDto = commentMapper.toDto(commentRepository.save(commentSave));
             return ResponseDto.<CommentDto>builder()
                     .data(commentDto)
-                    .message("OK")
+                    .message(AppStatusMessages.OK)
                     .code(AppStatusCodes.OK_CODE)
                     .success(true)
                     .build();
         } catch (Exception e) {
             return ResponseDto.<CommentDto>builder()
                     .code(AppStatusCodes.DATABASE_ERROR_CODE)
-                    .message("Database error")
+                    .message(AppStatusMessages.DATABASE_ERROR)
                     .data(commentMapper.toDto(commentSave))
                     .build();
         }
@@ -74,21 +75,32 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public ResponseDto<CommentDto> removeComment(Integer id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UsersDto usersDto = (UsersDto) authentication.getPrincipal();
         Optional<Comment> commentById = commentRepository.findById(id);
-        if (commentById.isPresent()){
-            Comment comment = commentById.get();
-            commentRepository.deleteById(id);
+        if(commentById.isEmpty()){
             return ResponseDto.<CommentDto>builder()
-                    .message("OK")
-                    .code(1)
-                    .success(true)
-                    .data(commentMapper.toDto(comment))
+                    .message(AppStatusMessages.NOT_FOUND)
+                    .success(false)
+                    .code(AppStatusCodes.OK_CODE)
                     .build();
         }
+        if(commentById.get().getUsers().getId() != usersDto.getId()){
+            return ResponseDto.<CommentDto>builder()
+                    .message("method not allow")
+                    .code(AppStatusCodes.OK_CODE)
+                    .success(true)
+                    .build();
+        }
+
+        Comment comment = commentById.get();
+        commentRepository.deleteById(id);
         return ResponseDto.<CommentDto>builder()
-                .message("Comment " +id+ " is not available")
-                .success(false)
-                .code(-1)
+                .message(AppStatusMessages.OK)
+                .code(AppStatusCodes.OK_CODE)
+                .success(true)
+                .data(commentMapper.toDto(comment))
                 .build();
+
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import java.time.LocalDateTime;
 
 @Configuration
-public class AppConfig {
+public class AppConfiguration {
     @Autowired
     LocalDateTimeDeserializer localDateTimeDeserializer;
     @Autowired

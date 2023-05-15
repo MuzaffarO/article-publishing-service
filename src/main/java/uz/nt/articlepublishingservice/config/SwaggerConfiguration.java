@@ -17,5 +17,5 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
                 version = "1.0.0"
         )
 )
-public class SwaggerConfig {
+public class SwaggerConfiguration {
 }
