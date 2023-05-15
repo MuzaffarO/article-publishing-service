@@ -74,17 +74,26 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public ResponseDto<CommentDto> removeComment(Integer id) {
-        Optional<Comment> commentById = commentRepository.findById(id);
-        if (commentById.isPresent()){
-            Comment comment = commentById.get();
-            commentRepository.deleteById(id);
+        UsersDto principal = (UsersDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principal.getId().equals(commentMapper.toDto(commentRepository.findById(id).get()).getId())){
+            Optional<Comment> commentById = commentRepository.findById(id);
+            if (commentById.isPresent()) {
+                Comment comment = commentById.get();
+                commentRepository.deleteById(id);
+                return ResponseDto.<CommentDto>builder()
+                        .message("Deleted")
+                        .code(AppStatusCodes.OK_CODE)
+                        .success(true)
+                        .data(commentMapper.toDto(comment))
+                        .build();
+            }
+        }else
             return ResponseDto.<CommentDto>builder()
-                    .message("Deleted")
-                    .code(AppStatusCodes.OK_CODE)
-                    .success(true)
-                    .data(commentMapper.toDto(comment))
+                    .message("This comment isn't belong to "+ principal.getUsername())
+                    .success(false)
+                    .code(AppStatusCodes.NOT_FOUND_ERROR_CODE)
                     .build();
-        }
+
         return ResponseDto.<CommentDto>builder()
                 .message("Comment " +id+ " is not available")
                 .success(false)

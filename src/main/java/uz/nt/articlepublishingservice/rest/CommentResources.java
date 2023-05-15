@@ -55,7 +55,7 @@ public class CommentResources {
                     content = @Content(mediaType = "application/json")),
             responses = {@ApiResponse(responseCode = "200", description = "OK"),
                     @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
-                    @ApiResponse(responseCode = "404", description = "Category not found")}
+                    @ApiResponse(responseCode = "404", description = "Comment not found")}
     )
     @DeleteMapping("{comment_id}")
     public ResponseDto<CommentDto> deleteComment(@PathVariable Integer comment_id, @PathVariable String article_id){
