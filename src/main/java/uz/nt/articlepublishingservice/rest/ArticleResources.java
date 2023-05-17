@@ -5,13 +5,17 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.nt.articlepublishingservice.dto.ArticlesDto;
+import uz.nt.articlepublishingservice.dto.ResponseDto;
+import uz.nt.articlepublishingservice.model.Articles;
 import uz.nt.articlepublishingservice.service.impl.ArticlesServiceImpl;
 import uz.nt.articlepublishingservice.service.impl.TagServiceImpl;
 
+import java.util.List;
 @RestController
 @RequestMapping("/articles")
 @SecurityRequirement(name = "Authorization")
@@ -47,9 +51,10 @@ public class ArticleResources {
                     @ApiResponse(responseCode = "404", description = "Articles not found")
             }
     )
-    @GetMapping
-    public ResponseEntity<?> getAll(){
-        return articlesService.getAll();
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
+    @GetMapping("/get-all")
+    public ResponseEntity<Page<Articles>> getAll(@RequestParam Integer limit, @RequestParam Integer offset){
+        return articlesService.getAll(limit, offset);
     }
 
     @Operation(
@@ -64,6 +69,7 @@ public class ArticleResources {
                     @ApiResponse(responseCode = "404", description = "Article not found")
             }
     )
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @PatchMapping
     public ResponseEntity<?> update(@RequestBody ArticlesDto articlesDto){
         return articlesService.update(articlesDto);
@@ -82,6 +88,7 @@ public class ArticleResources {
                     @ApiResponse(responseCode = "404", description = "Article not found")
             }
     )
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id){
         return articlesService.delete(id);
@@ -100,6 +107,7 @@ public class ArticleResources {
                     @ApiResponse(responseCode = "404", description = "Article not found")
             }
     )
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable Integer id){
         return articlesService.get(id);
@@ -117,6 +125,7 @@ public class ArticleResources {
                     @ApiResponse(responseCode = "404", description = "Tags not found")
             }
     )
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @GetMapping("/popular-tags")
     public ResponseEntity<?> popularTags(){
         return tagService.popularArticles();
@@ -131,8 +140,24 @@ public class ArticleResources {
                     content = @Content(mediaType = "application/json")),
             responses = {@ApiResponse(responseCode = "200", description = "OK")}
     )
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @PostMapping("/like/{articleId}")
     public ResponseEntity<?> like(@PathVariable Integer articleId){
         return articlesService.like(articleId);
+    }
+    @GetMapping("/feed")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
+    public ResponseDto<List<ArticlesDto>> feed(){
+        return articlesService.feed();
+    }
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
+    public ResponseEntity<?> favorited(@RequestParam String favorited){
+        return articlesService.favorite(favorited);
+    }
+    @GetMapping("/tag")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
+    public ResponseEntity<?> getArticleByTag(@RequestParam String tag){
+        return articlesService.getArticleByTag(tag);
     }
 }
