@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,15 +32,17 @@ public class Users {
             name = "subscriptions",
             joinColumns = @JoinColumn(name = "follower_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<Users> follows;
+    private List<Users> follows = new ArrayList<>();
     @ManyToMany(mappedBy = "follows")
-    private List<Users> followers;
+    private List<Users> followers = new ArrayList<>();
     @ManyToMany
     @JoinTable(
             name = "likes",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "article_id"))
-    private List<Articles> likes;
+    private List<Articles> likes = new ArrayList<>();
+    @Column(columnDefinition = "TEXT default('USER')")
+    private String role;
 
     @Override
     public int hashCode() {

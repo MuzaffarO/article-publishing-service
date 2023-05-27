@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ public class Articles {
     @ManyToOne
     private Users author;
     @ManyToMany(mappedBy = "likes")
-    private List<Users> likes;
+    private List<Users> likes = new ArrayList<>();
     @ManyToMany
     private Set<Tag> tags;
 

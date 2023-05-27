@@ -8,4 +8,5 @@ import java.util.Set;
 public interface TagService {
     ResponseEntity<Set<Tag>> add(Set<String> tagDto);
     ResponseEntity<?> delete(Integer id);
+    ResponseEntity<?> get(String name);
 }
