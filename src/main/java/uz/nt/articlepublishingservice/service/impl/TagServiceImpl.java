@@ -41,6 +41,16 @@ public class TagServiceImpl implements TagService {
         repository.delete(byId.get());
         return ResponseEntity.ok(true);
     }
+
+    @Override
+    public ResponseEntity<?> get(String name) {
+        Optional<Tag> byName = repository.findByName(name);
+        if(byName.isEmpty()){
+            return ResponseEntity.ok(AppStatusMessages.NOT_FOUND);
+        }
+        return ResponseEntity.ok(byName.get());
+    }
+
     public ResponseEntity<?> popularArticles() {
         return ResponseEntity.ok(repository.getPopularTags());
     }
